@@ -3,20 +3,40 @@ from pandas import DatetimeIndex, to_datetime, date_range
 
 
 def get_info(dataframe):
-    print('\nDataframe info ' + '=' * 30)
+    """
+    Returns information about the dataframe passed.
+
+    :param dataframe: dataframe to analyse.
+    """
+    print('\nDataframe info ' + '=' * 70)
     print(dataframe.info())
-    # todo types of variables
+    print('\nDataframe head ' + '=' * 70)
+    print(dataframe.head())
+    print('\nDataframe stats ' + '=' * 70)
+    print(dataframe.describe())
 
 
 def remove_features(dataframe):
-    columns_names = ['time', 'Total Energy ', 'Generated Energy', 'House Overall', 'Dishwasher', 'Furnace 1',
+    """
+    Elaborates the dataframe given renaming all the attributes, deleting some features and setting a datetime index.
+
+    :param dataframe: dataframe to transform.
+    :return: the new dataframe.
+    """
+    # New features names
+    columns_names = ['Time', 'Total Energy', 'Generated Energy', 'House Overall', 'Dishwasher', 'Furnace 1',
                      'Furnace 2', 'Home Office', 'Fridge', 'Wine Cellar', 'Garage Door', 'Kitchen 1', 'Kitchen 2',
                      'Kitchen 3', 'Barn', 'Well', 'Microwave', 'Living Room', 'Solar', 'Temperature', 'Light',
                      'Humidity', 'visibility', 'summary', 'apparentTemperature', 'Pressure', 'Wind Speed', 'cloudCover',
                      'Wind Bearing', 'Precipitation', 'Dew Point', 'precipProbability']
+    # Old names of the features
     dataframe.columns = columns_names
-    start_date = to_datetime(dataframe['time'][0], unit='s').strftime('%Y-%m-%d %H:%M')
-    dataframe['time'] = date_range(start_date, periods=len(dataframe), freq='min')
-    dataframe = dataframe.set_index(DatetimeIndex(dataframe['time']))
-    columns_to_remove = ['time', 'visibility', 'summary', 'apparentTemperature', 'cloudCover', 'precipProbability']
+    # Find the initial time from which the measurements start
+    start_date = to_datetime(dataframe['Time'][0], unit='s').strftime('%Y-%m-%d %H:%M')
+    # The observations are measured every one minute
+    dataframe['Time'] = date_range(start_date, periods=len(dataframe), freq='min')
+    # Set the time column as the index of the dataframe
+    dataframe.index = dataframe['Time']
+    # Remove the columns that are not used
+    columns_to_remove = ['Time', 'visibility', 'summary', 'apparentTemperature', 'cloudCover', 'precipProbability']
     return dataframe.drop(columns_to_remove, axis=1)
