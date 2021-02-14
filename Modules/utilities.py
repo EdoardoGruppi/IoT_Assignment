@@ -1,5 +1,6 @@
 # Import packages
-from pandas import DatetimeIndex, to_datetime, date_range
+from pandas import to_datetime, date_range
+import numpy as np
 
 
 def get_info(dataframe):
@@ -40,3 +41,22 @@ def remove_features(dataframe):
     # Remove the columns that are not used
     columns_to_remove = ['Time', 'visibility', 'summary', 'apparentTemperature', 'cloudCover', 'precipProbability']
     return dataframe.drop(columns_to_remove, axis=1)
+
+
+def get_time_details(dataframe):
+    """
+    Adds columns to the dataframe defining more clearly time details.
+
+    :param dataframe: dataframe to elaborate.
+    :return: the new dataframe.
+    """
+    # Get the datetime index once
+    index = dataframe.index
+    # Retrieve details on time
+    dataframe['Week Day'] = index.weekday
+    dataframe['Hour'] = index.hour
+    dataframe['Day'] = index.day
+    dataframe['Month'] = index.month
+    dataframe['Day Of Year'] = index.dayofyear
+    dataframe['Week Of Year'] = index.isocalendar().week
+    return dataframe
