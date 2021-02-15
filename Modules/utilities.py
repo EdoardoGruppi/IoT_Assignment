@@ -1,5 +1,6 @@
 # Import packages
 from pandas import to_datetime, date_range
+from numpy import mean, abs, sqrt, corrcoef
 
 
 def get_info(dataframe):
@@ -59,3 +60,26 @@ def get_time_details(dataframe):
     dataframe['Day Of Year'] = index.dayofyear
     dataframe['Week Of Year'] = index.isocalendar().week
     return dataframe
+
+
+def compute_metrics(true_values, predictions):
+    """
+    Computes metrics (MAPE, RMSE, CORR, R2, MAE, MPE, MSE) to evaluate models performance.
+
+    :param true_values: the true values of the test dataset.
+    :param predictions: the predicted values.
+    :return:
+    """
+    # Compute errors
+    errors = true_values - predictions
+    # Compute and print metrics
+    mse = mean(errors ** 2)
+    mae = mean(abs(errors))
+    rmse = sqrt(mse)
+    mape = mean(abs(predictions - true_values) / abs(true_values))
+    mpe = mean((predictions - true_values) / true_values)
+    corr = corrcoef(predictions, true_values)[0, 1]
+    r_squared = 1 - (sum(errors ** 2) / sum((true_values - mean(true_values)) ** 2))
+    print('Results by manual calculation:\n',
+          f'- MAPE: {mape:.4f} \n - RMSE: {rmse:.4f} \n - CORR: {corr:.4f} \n - R2: {r_squared:.4f}\n',
+          f'- MAE: {mae:.4f} \n - MPE: {mpe:.4f} \n - MSE: {mse:.4f}\n')
