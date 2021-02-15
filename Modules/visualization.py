@@ -3,6 +3,11 @@ import seaborn as sn
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import grangercausalitytests
+from pmdarima.arima import ADFTest
+from pandas import Series, concat
 
 
 def plot_correlation_matrix(dataframe):
@@ -111,7 +116,7 @@ def plot_distributions(dataframe, columns=3):
     rows = int(np.ceil(dataframe.shape[1] / columns))
     # Add a subplot for each series in the dataframe
     for i, column in enumerate(dataframe.columns):
-        ax = fig.add_subplot(rows, columns, i + 1)
+        fig.add_subplot(rows, columns, i + 1)
         # If the variable is categorical...
         if dataframe.dtypes[column] == np.object:
             g = sn.countplot(y=column, data=dataframe)
@@ -132,8 +137,8 @@ def scatter_plot_matrix(dataframe):
     """
     sn.set()
     # Scatter plot matrix
-    fig = plt.figure(figsize=(20, 20))
-    g = sn.pairplot(dataframe, plot_kws=dict(s=0.5), diag_kind='hist', diag_kws=dict(kde=True, bins=50))
+    plt.figure(figsize=(20, 20))
+    sn.pairplot(dataframe, plot_kws=dict(s=0.5), diag_kind='hist', diag_kws=dict(kde=True, bins=50))
     plt.tight_layout()
     plt.show()
 
@@ -194,3 +199,136 @@ def detect_seasonality(dataframe, y_axis, x_axis, hue):
     sn.lineplot(data=dataframe, x=x_axis, y=y_axis, hue=hue, legend='full')
     plt.tight_layout()
     plt.show()
+
+
+def plot_auto_correlation(series, lags=None):
+    """
+    Plots the auto correlation functions of the series provided.
+
+    :param series: time series to analyse.
+    :param lags: an int or array of lag values, used on horizontal axis. default_value=None
+    :return:
+    """
+    sn.set()
+    fig, axes = plt.subplots(1, 2, sharey='all', figsize=(20, 7))
+    plot_acf(series, ax=axes[0], lags=lags)
+    plot_pacf(series, ax=axes[1], lags=lags)
+    fig.tight_layout()
+    plt.show()
+
+
+def plot_series(series):
+    """
+    Simple functions to plot the boxplot and the distribution of a time series.
+
+    :param series: series to analyse.
+    :return:
+    """
+    sn.set()
+    fig, ax = plt.subplots(1, 2, figsize=(20, 8), gridspec_kw={'width_ratios': [1, 7]})
+    sn.boxplot(data=series, linewidth=2, ax=ax[0])
+    sn.lineplot(data=series, linewidth=2, ax=ax[1])
+    plt.tight_layout()
+    plt.show()
+
+
+def decompose_series(series, period=None, mode='multiplicative'):
+    """
+    Decomposes a series using moving averages.
+
+    :param series: time series to decompose.
+    :param period: period of the series. Required if x is not a pandas dataframe. default_value=None
+    :param mode: type of seasonal component ('additive', 'multiplicative'). default_value='multiplicative'
+    :return:
+    """
+    sn.set()
+    # Decompose the series using the seasonal_decompose function from the stats-model library
+    result = seasonal_decompose(series, model=mode, period=period)
+    # Plot the results all together
+    fig, axes = plt.subplots(ncols=1, nrows=4, sharex='all', figsize=(30, 10))
+    result.observed.plot(ax=axes[0], legend=False)
+    axes[0].set_ylabel('Observed')
+    result.trend.plot(ax=axes[1], legend=False)
+    axes[1].set_ylabel('Trend')
+    result.seasonal.plot(ax=axes[2], legend=False)
+    axes[2].set_ylabel('Seasonal')
+    result.resid.plot(ax=axes[3], legend=False)
+    axes[3].set_ylabel('Residual')
+    fig.tight_layout()
+    plt.show()
+
+
+def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
+    """
+    Performs the granger test on the time series passed. Null hypothesis: the second time series, x2, does NOT Granger
+    cause the time series of interest, x1. Grange causality means that past values of x2 have a statistically
+    significant effect on the current value of x1.
+
+    :param dataframe: dataset to analyse.
+    :param target_column: time series x1.
+    :param max_lag: maximum number of lags to consider. default_value=5
+    :param test: which test to keep between the four computed by the stat function. default_value='ssr_ftest'
+    :return:
+    """
+    print('\nExecuting Granger Test...')
+    results = []
+    # Select all the columns in the dataframe except the target column
+    columns = [col for col in dataframe.columns if col != target_column]
+    # For every column different by the target column compute the granger test.
+    for col_name in columns:
+        # The granger test results are returned as dictionary
+        dictionary = grangercausalitytests(dataframe[[target_column, col_name]], maxlag=max_lag)
+        # For every tuple (max = number of lags) in the dictionary, save only the obtained p-value
+        results.append(Series([item[0][test][1] for item in dictionary.values()], name=col_name))
+    # Create a dataframe with the results achieved
+    results = concat(results, axis=1)
+    sn.set()
+    plt.figure()
+    # Display the results collected by means of a heatmap
+    sn.heatmap(results, annot=True, linewidths=2, cmap='GnBu_r', cbar=False, square=True, fmt='.2f',
+               annot_kws={'c': 'k'}, vmax=1, vmin=-0.5)
+    plt.tight_layout()
+    plt.show()
+    # Print the results as well
+    print(results)
+
+
+def check_stationarity(time_series):
+    """
+    Performs the Augmented Dickey-Fuller test wherein the null hypothesis is: data is not stationary. Adopting an alpha
+    value of 0.05, the null hypothesis will be rejected only when the confidence is greater than 95%. This function also
+    returns the differencing order of the series.
+
+    :param time_series: series to analyse with the ADF test.
+    """
+    # Make sure that the original time series is not modified
+    series = time_series.copy()
+    sn.set()
+    # Plot the original time-series along with the final result
+    fig, axes = plt.subplots(1, 2, figsize=(22, 6))
+    sn.lineplot(x=series.index, y=series.values, ax=axes[0])
+    axes[0].set_title('Original series')
+    print('\nResults of Dickey-Fuller Test:')
+    # Significance level to reject the null hypothesis is set to 0.05
+    adf_test = ADFTest(alpha=0.05)
+    # Differencing order
+    diff_order = 0
+    # Series after differencing. At the beginning it is equal to the original series
+    diff_series = series.copy()
+    while True:
+        # Compute the ADF test. It returns the p-value and if the differencing is needed
+        results, should = adf_test.should_diff(series)
+        print(f'Differencing order: {diff_order} - P-value: {results:.4f} - Stop: {not should}')
+        # Should is a boolean to understand if the series need the differencing
+        if should:
+            # If it is not already stationary, apply the differencing of one order above
+            diff_order += 1
+            diff_series = series.diff(periods=diff_order).bfill()
+        else:
+            break
+    # Plot the stationary series.
+    sn.lineplot(x=diff_series.index, y=diff_series.values, ax=axes[1])
+    axes[1].set_title(f'Trend-stationary series after differencing (diff.order: {diff_order})')
+    plt.tight_layout()
+    plt.show()
+
