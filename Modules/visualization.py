@@ -331,4 +331,3 @@ def check_stationarity(time_series):
     axes[1].set_title(f'Trend-stationary series after differencing (diff.order: {diff_order})')
     plt.tight_layout()
     plt.show()
-

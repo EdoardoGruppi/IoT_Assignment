@@ -12,9 +12,10 @@ from Modules.data_preparation import *
 # DATA PREPROCESSING ===================================================================================================
 dataframe = read_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
 dataframe = remove_features(dataframe)
-# get_info(dataframe)
+get_info(dataframe)
 train, valid, test = dataset_division(dataframe, valid_size=0.05, test_size=0.05)
 dataframe = train.copy()
+# dataframe = transform_categorical(dataframe, 'Light')
 dataframe = get_time_details(dataframe)
 
 # DATA EXPLORATION AND HYPOTHESIS TESTING ==============================================================================
@@ -27,7 +28,7 @@ dataframe = get_time_details(dataframe)
 # hue_scatter_plot_matrix(dataframe, dataframe.columns[:2], ['Month'])
 # detect_seasonality(dataframe, dataframe.columns[0], 'Hour', 'Week Day')
 
-target_column = dataframe['Total Energy']
+# target_column = dataframe['Total Energy']
 # plot_series(dataframe[target_column])
 # plot_auto_correlation(dataframe[target_column], lags=60)
 # decompose_series(target_column, period=100, mode='additive')
@@ -35,11 +36,13 @@ target_column = dataframe['Total Energy']
 # check_stationarity(target_column)
 
 # todo hypothesis testing
+
 # columns_to_remove = []
 # train = train.drop(columns_to_remove, axis=1)
 # valid = valid.drop(columns_to_remove, axis=1)
 # test = test.drop(columns_to_remove, axis=1)
 # train, valid, test = transform_dataset(train, valid, test, 'Total Energy', reduction=False)
 
+# DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 
-# DATA INFERENCE =======================================================================================================
+

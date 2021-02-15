@@ -1,5 +1,5 @@
 # Import packages
-from pandas import to_datetime, date_range
+from pandas import to_datetime, date_range, factorize
 from numpy import mean, abs, sqrt, corrcoef
 
 
@@ -15,6 +15,19 @@ def get_info(dataframe):
     print(dataframe.head())
     print('\nDataframe stats ' + '=' * 70)
     print(dataframe.describe())
+
+
+def transform_categorical(dataframe, column):
+    """
+    Transforms the string values of a categorical variable in numeric values. This may be helpful to avoid errors
+    when using reduction algorithms such as PCA, T-Sne and so on and so forth.
+
+    :param dataframe: the dataframe containing the column to modify.
+    :param column: the column to modify within the dataframe.
+    :return: the new dataframe
+    """
+    dataframe[column], _ = factorize(dataframe[column])
+    return dataframe
 
 
 def remove_features(dataframe):
