@@ -1,6 +1,5 @@
 # Import packages
 from pandas import to_datetime, date_range
-import numpy as np
 
 
 def get_info(dataframe):
