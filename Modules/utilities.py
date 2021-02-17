@@ -30,11 +30,12 @@ def transform_categorical(dataframe, column):
     return dataframe
 
 
-def remove_features(dataframe):
+def process_dataframe(dataframe, resampling=None):
     """
     Elaborates the dataframe given renaming all the attributes, deleting some features and setting a datetime index.
 
     :param dataframe: dataframe to transform.
+    :param resampling: if Not None it defines the interval for the resampling. default_value=None
     :return: the new dataframe.
     """
     # New features names
@@ -53,7 +54,11 @@ def remove_features(dataframe):
     dataframe.index = dataframe['Time']
     # Remove the columns that are not used
     columns_to_remove = ['Time', 'visibility', 'summary', 'apparentTemperature', 'cloudCover', 'precipProbability']
-    return dataframe.drop(columns_to_remove, axis=1)
+    dataframe = dataframe.drop(columns_to_remove, axis=1)
+    # If resampling is not None resample the time series.
+    if resampling is not None:
+        dataframe = dataframe.resample(resampling).interpolate()
+    return dataframe
 
 
 def get_time_details(dataframe):
