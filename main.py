@@ -5,18 +5,20 @@ from Modules.config import *
 from Modules.utilities import *
 from Modules.visualization import *
 from Modules.data_preparation import *
+from Modules.acquisition import download_dataset
 
 # DATA ACQUISITION =====================================================================================================
-
+# dataframe = download_dataset()
+# dataframe.to_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
 
 # DATA PREPROCESSING ===================================================================================================
 dataframe = read_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
-dataframe = remove_features(dataframe)
+dataframe = process_dataframe(dataframe, resampling='5min')
 get_info(dataframe)
 train, valid, test = dataset_division(dataframe, valid_size=0.05, test_size=0.05)
 dataframe = train.copy()
-# dataframe = transform_categorical(dataframe, 'Light')
-dataframe = get_time_details(dataframe)
+dataframe = transform_categorical(dataframe, 'Light')
+# dataframe = get_time_details(dataframe)
 
 # DATA EXPLORATION AND HYPOTHESIS TESTING ==============================================================================
 # plot_correlation_matrix(dataframe)
@@ -29,8 +31,10 @@ dataframe = get_time_details(dataframe)
 # detect_seasonality(dataframe, dataframe.columns[0], 'Hour', 'Week Day')
 
 # target_column = dataframe['Total Energy']
-# plot_series(dataframe[target_column])
-# plot_auto_correlation(dataframe[target_column], lags=60)
+# plot_series(target_column)
+# plot_distribution(dataframe, 'Total Energy')
+# plot_distribution(dataframe, x='Total Energy', hue='Hour')
+# plot_auto_correlation(target_column, lags=60)
 # decompose_series(target_column, period=100, mode='additive')
 # granger_test(dataframe.iloc[:, :8], target_column='Total Energy', max_lag=4)
 # check_stationarity(target_column)
@@ -41,8 +45,7 @@ dataframe = get_time_details(dataframe)
 # train = train.drop(columns_to_remove, axis=1)
 # valid = valid.drop(columns_to_remove, axis=1)
 # test = test.drop(columns_to_remove, axis=1)
-# train, valid, test = transform_dataset(train, valid, test, 'Total Energy', reduction=False)
+train, valid, test = transform_dataset(train=train, valid=valid, test=test, target_column='Total Energy',
+                                       reduction=True, n_components=0.93)
 
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
-
-
