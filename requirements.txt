@@ -10,6 +10,7 @@ certifi=2020.12.5=py36haa95532_0
 cycler=0.10.0=py36haa95532_0
 cython=0.29.17=pypi_0
 freetype=2.10.4=hd328e21_0
+ibm-db=3.0.3=pypi_0
 icc_rt=2019.0.0=h0cc432a_1
 icu=58.2=ha925a31_3
 intel-openmp=2020.2=254
