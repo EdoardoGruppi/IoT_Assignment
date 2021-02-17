@@ -26,6 +26,7 @@ def find_svm(train, train_target, valid, valid_target, max_c=100):
     for counter in range(1, max_c + 1):
         print(f'Testing SVM with C = {counter}.')
         # Instantiate a Linear Support Vector Classifier
+        # todo change
         model_SVR = LinearSVR(C=counter, max_iter=5000, loss='squared_epsilon_insensitive', dual=False)
         # Fit the model according to the given training data
         model_SVR.fit(train, train_target)
@@ -49,7 +50,7 @@ def support_vector_machine(train, train_target, test, test_target, c, plot=True)
     :param test_target: target column related to the test dataset.
     :param c: value of the c parameter of the SVM.
     :param plot: if True the results are plotted as well.
-    :return:
+    :return: the features importance.
     """
     # Instantiate a Linear Support Vector Classifier
     # todo change support vector machine
@@ -70,3 +71,4 @@ def support_vector_machine(train, train_target, test, test_target, c, plot=True)
         plt.ylabel('Total Energy (kW)')
         plt.tight_layout()
         plt.show()
+    return model_SVR

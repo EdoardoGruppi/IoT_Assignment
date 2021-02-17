@@ -7,6 +7,7 @@ from Modules.visualization import *
 from Modules.data_preparation import *
 from Modules.acquisition import download_dataset
 from Models.model import *
+from Modules.ML_interpretability import *
 
 # DATA ACQUISITION =====================================================================================================
 # The dataset can be downloaded from the following link https://bit.ly/37pTa0f or using the download_dataset()
@@ -20,9 +21,9 @@ dataframe = process_dataframe(dataframe)
 dataframe = transform_categorical(dataframe, 'Light')
 dataframe = dataframe.resample('5min').interpolate()
 # get_info(dataframe)
+dataframe = get_time_details(dataframe)
 train, valid, test = dataset_division(dataframe, valid_size=0.05, test_size=0.05)
 dataframe = train.copy()
-# dataframe = get_time_details(dataframe)
 
 # DATA EXPLORATION AND HYPOTHESIS TESTING ==============================================================================
 # plot_correlation_matrix(dataframe)
@@ -56,8 +57,10 @@ train, train_target, valid, valid_target, test, test_target = transform_dataset(
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 # Find the best value for the c parameter of a SVM
 c_value = find_svm(train, train_target, valid, valid_target, max_c=100)
-support_vector_machine(train=train, train_target=train_target, test=test, test_target=test_target, c=c_value)
-# In case of regression
-# train = concat([train, valid])
-# train_target = concat([train_target, valid_target])
+model_SVR = support_vector_machine(train=train, train_target=train_target, test=test,
+                                   test_target=test_target, c=c_value)
+features_importance(model_SVR.coef_, train.columns)
+plot_partial_dependencies(model_SVR, test, column='0')
+plot_two_ways_pdp(model_SVR, test, [('0', '1')])
+plot_ice(model_SVR, test, column='0')
 
