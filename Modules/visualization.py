@@ -8,6 +8,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import grangercausalitytests
 from pmdarima.arima import ADFTest
 from pandas import Series, concat
+from scipy.stats import pearsonr
 
 
 def plot_correlation_matrix(dataframe):
@@ -138,7 +139,8 @@ def scatter_plot_matrix(dataframe):
     sn.set()
     # Scatter plot matrix
     plt.figure(figsize=(20, 20))
-    sn.pairplot(dataframe, plot_kws=dict(s=0.5), diag_kind='hist', diag_kws=dict(kde=True, bins=50))
+    g = sn.pairplot(dataframe, plot_kws=dict(s=0.5), diag_kind='hist', diag_kws=dict(kde=True, bins=50))
+    g.map_upper(pearson_corr)
     plt.tight_layout()
     plt.show()
 
@@ -331,3 +333,21 @@ def check_stationarity(time_series):
     axes[1].set_title(f'Trend-stationary series after differencing (diff.order: {diff_order})')
     plt.tight_layout()
     plt.show()
+
+
+def pearson_corr(input_1, input_2, **kws):
+    """
+    Function to print the correlation between two variables on the scatter plot matrix.
+
+    :param input_1: first variable.
+    :param input_2: second variable.
+    :param kws: additional arguments.
+    """
+    # Compute the pearson correlation between the two variables
+    result, _ = pearsonr(input_1, input_2)
+    # Create the string to print on the plots
+    label = r'$\rho$ = ' + str(round(result, 3))
+    # Retrieve the ax of the figure
+    ax = plt.gca()
+    # Print the string built in the upper right corner of the picture
+    ax.annotate(label, xy=(.65, .9), size=10, xycoords=ax.transAxes)
