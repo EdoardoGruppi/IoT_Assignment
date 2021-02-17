@@ -55,6 +55,10 @@ def transform_dataset(train, valid, test, target_column, algorithm='pca', n_comp
     train_data = train.drop([target_column], axis=1)
     valid_data = valid.drop([target_column], axis=1)
     test_data = test.drop([target_column], axis=1)
+    # Target column
+    train_target = train[target_column]
+    valid_target = valid[target_column]
+    test_target = test[target_column]
     # Apply dimensionality reduction exclusively when it is True
     if reduction:
         # Select the algorithm
@@ -68,17 +72,14 @@ def transform_dataset(train, valid, test, target_column, algorithm='pca', n_comp
         train_data = model.fit_transform(train_data)
         valid_data = model.transform(valid_data)
         test_data = model.transform(test_data)
-    # Rescale all the other features to develop on the same range of the target column
-    scaler = MinMaxScaler(feature_range=(train[target_column].min(), train[target_column].max()))
-    train_data = scaler.fit_transform(train_data)
-    valid_data = scaler.transform(valid_data)
-    test_data = scaler.transform(test_data)
+    # Rescale all the other features to develop on the same range of the target column and...
     # Re-create the dataframes from the array returned by the various algorithms involved
-    train = concat([DataFrame(train_data, index=train.index), train[target_column]], axis=1)
-    valid = concat([DataFrame(valid_data, index=valid.index), valid[target_column]], axis=1)
-    test = concat([DataFrame(test_data, index=test.index), test[target_column]], axis=1)
+    scaler = MinMaxScaler(feature_range=(train[target_column].min(), train[target_column].max()))
+    train = DataFrame(scaler.fit_transform(train_data), index=train.index)
+    valid = DataFrame(scaler.fit_transform(valid_data), index=valid.index)
+    test = DataFrame(scaler.fit_transform(test_data), index=test.index)
     # Transform in string all the names of the columns to avoid conflicts later.
     train.columns = [str(col) for col in train.columns]
     valid.columns = [str(col) for col in valid.columns]
     test.columns = [str(col) for col in test.columns]
-    return train, valid, test
+    return train, train_target, valid, valid_target, test, test_target

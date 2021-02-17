@@ -6,18 +6,22 @@ from Modules.utilities import *
 from Modules.visualization import *
 from Modules.data_preparation import *
 from Modules.acquisition import download_dataset
+from Models.model import *
 
 # DATA ACQUISITION =====================================================================================================
+# The dataset can be downloaded from the following link https://bit.ly/37pTa0f or using the download_dataset()
+# function provided that gets data from the IBM SQL Db2 dataset.
 # dataframe = download_dataset()
 # dataframe.to_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
 
 # DATA PREPROCESSING ===================================================================================================
 dataframe = read_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
-dataframe = process_dataframe(dataframe, resampling='5min')
-get_info(dataframe)
+dataframe = process_dataframe(dataframe)
+dataframe = transform_categorical(dataframe, 'Light')
+dataframe = dataframe.resample('5min').interpolate()
+# get_info(dataframe)
 train, valid, test = dataset_division(dataframe, valid_size=0.05, test_size=0.05)
 dataframe = train.copy()
-dataframe = transform_categorical(dataframe, 'Light')
 # dataframe = get_time_details(dataframe)
 
 # DATA EXPLORATION AND HYPOTHESIS TESTING ==============================================================================
@@ -45,7 +49,15 @@ dataframe = transform_categorical(dataframe, 'Light')
 # train = train.drop(columns_to_remove, axis=1)
 # valid = valid.drop(columns_to_remove, axis=1)
 # test = test.drop(columns_to_remove, axis=1)
-train, valid, test = transform_dataset(train=train, valid=valid, test=test, target_column='Total Energy',
-                                       reduction=True, n_components=0.93)
+train, train_target, valid, valid_target, test, test_target = transform_dataset(train=train, valid=valid, test=test,
+                                                                                target_column='Total Energy',
+                                                                                reduction=True, n_components=0.93)
 
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
+# Find the best value for the c parameter of a SVM
+c_value = find_svm(train, train_target, valid, valid_target, max_c=100)
+support_vector_machine(train=train, train_target=train_target, test=test, test_target=test_target, c=c_value)
+# In case of regression
+# train = concat([train, valid])
+# train_target = concat([train_target, valid_target])
+
