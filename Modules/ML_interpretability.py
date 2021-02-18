@@ -3,7 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sn
 from sklearn.inspection import plot_partial_dependence
+from sklearn.tree import DecisionTreeRegressor, plot_tree
 from pdpbox import pdp
+from lime.lime_tabular import LimeTabularExplainer
+from shap import TreeExplainer, force_plot, dependence_plot, summary_plot
 
 
 def features_importance(feature_importance, names):
@@ -70,7 +73,7 @@ def plot_ice(model, test, column):
     regarded as an average of the lines of ICE plot. The ICE curves  plotted with the functions provided by the
     package pdpbox are centered to make it easier to spot the differences between curves at different instances.
 
-    :param model: the model considered. The partial dependence plot is calculated only after the model has been fit.
+    :param model: the model considered. The ice plot is calculated only after the model has been fit.
     :param test: test dataset.
     :param column: variables studied.
     """
@@ -78,3 +81,76 @@ def plot_ice(model, test, column):
     pdp.pdp_plot(pdp_feature, column, plot_lines=True, frac_to_plot=100)
     plt.tight_layout()
     plt.show()
+
+
+def surrogate_tree(model, test, max_depth=5, random_state=10):
+    """
+    Adopts a surrogate tree to explain the inner working of a so-called black box model.
+
+    :param model: the model considered. The surrogate tree is adopted only after the model has been fit.
+    :param test: test dataset.
+    :param max_depth: maximum depth of the tree. default_value=5
+    :param random_state: random state of the tree. default_value=10
+    :return:
+    """
+    # Make the predictions with the "black-box" model
+    predictions = model.predict(test)
+    # Defining the interpretable decision tree model
+    surrogate_model = DecisionTreeRegressor(max_depth=max_depth, random_state=random_state)
+    # Fitting the surrogate decision tree model
+    surrogate_model.fit(test, predictions)
+    # Unfortunately there is a bug caused by the conflict between seaborn and sklearn. The only solution is to plot the
+    # the decision tree under a gray background. Otherwise, the arrows are not displayed. The background of the image
+    # once saved can be modified using an external lightweight software such as paint
+    plt.style.use('grayscale')
+    plt.figure(figsize=(20, 10))
+    plot_tree(surrogate_model, feature_names=test.columns, filled=True, rounded=True, fontsize=8)
+    plt.show()
+    # Set the previous style
+    sn.set()
+
+
+def plot_lime(model, test, instance):
+    """
+    Plots lime for regression.
+
+    :param model: the model considered. The lime plot is calculated only after the model has been fit.
+    :param test: test dataset.
+    :param instance: instance of the test dataset to explain.
+    """
+    print('\nLIME Explanation results:')
+    # Fit the explainer object
+    explainer = LimeTabularExplainer(np.array(test), feature_names=test.columns, verbose=True, mode='regression')
+    # Explain the instance required
+    explanation = explainer.explain_instance(test.iloc[instance], model.predict)
+    # Plot the results. The figure represents the magnitude of the influence of each feature when it is greater or
+    # smaller than a certain value. The red color means negatively, the green the opposite.
+    explanation.as_pyplot_figure()
+    plt.show()
+    print(f'Score:{explanation.score}')
+
+
+def plot_shap(model, test, instance=None, feature=None, dataset=False):
+    """
+    Displays shap plots to explain a black box model.
+
+    :param model: the model considered. The shap plots are calculated only after the model has been fit.
+    :param test: test dataset.
+    :param instance: instance of the test dataset to explain. default_value=None
+    :param feature: feature of the test dataset to explain. default_value=None
+    :param dataset: if True the entire dataset is taken into account. default_value=False
+    :return:
+    """
+    # Make an explainer on the model given. Not all the models are supported
+    explainer = TreeExplainer(model)
+    # Compute SHAP values
+    shap_values = explainer.shap_values(test)
+    # If not None explain single prediction
+    if instance is not None:
+        force_plot(explainer.expected_value, shap_values[instance, :], test.iloc[instance, :], matplotlib=True)
+    # If not None explain single feature
+    if feature is not None:
+        dependence_plot(feature, shap_values, test)
+    # If True explain the entire dataset
+    if dataset:
+        summary_plot(shap_values, test)

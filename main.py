@@ -19,7 +19,7 @@ from Modules.ML_interpretability import *
 dataframe = read_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
 dataframe = process_dataframe(dataframe)
 dataframe = transform_categorical(dataframe, 'Light')
-dataframe = dataframe.resample('5min').interpolate()
+dataframe = dataframe.resample(resampling).interpolate()
 # get_info(dataframe)
 dataframe = get_time_details(dataframe)
 train, valid, test = dataset_division(dataframe, valid_size=0.05, test_size=0.05)
@@ -56,11 +56,17 @@ train, train_target, valid, valid_target, test, test_target = transform_dataset(
 
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 # Find the best value for the c parameter of a SVM
-c_value = find_svm(train, train_target, valid, valid_target, max_c=100)
-model_SVR = support_vector_machine(train=train, train_target=train_target, test=test,
-                                   test_target=test_target, c=c_value)
-features_importance(model_SVR.coef_, train.columns)
-plot_partial_dependencies(model_SVR, test, column='0')
-plot_two_ways_pdp(model_SVR, test, [('0', '1')])
-plot_ice(model_SVR, test, column='0')
+# c_value = find_svm(train, train_target, valid, valid_target, max_c=20)
+# model_SVR = support_vector_machine(train=train, train_target=train_target, test=test,
+#                                    test_target=test_target, c=c_value)
+# features_importance(model_SVR.coef_, train.columns)
+# plot_partial_dependencies(model_SVR, test, column='0')
+# plot_two_ways_pdp(model_SVR, test, [('0', '1')])
+# plot_ice(model_SVR, test, column='0')
+# surrogate_tree(model_SVR, test, max_depth=4)
+# plot_lime(model_SVR, test, instance=25)
+
+
+model_XGB = xgb_regressor(train, train_target, test, test_target)
+plot_shap(model_XGB, test, instance=25, feature='0', dataset=True)
 
