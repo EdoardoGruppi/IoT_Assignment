@@ -178,7 +178,7 @@ def box_plot(dataframe, columns):
     :return:
     """
     sn.set()
-    figure = plt.figure(figsize=(16, 8))
+    figure = plt.figure(figsize=(35, 8))
     for index, col in enumerate(columns):
         figure.add_subplot(1, len(columns), index + 1)
         sn.boxplot(y=col, data=dataframe, linewidth=3.5)
@@ -286,7 +286,7 @@ def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
     # Create a dataframe with the results achieved
     results = concat(results, axis=1)
     sn.set()
-    plt.figure()
+    plt.figure(figsize=(20, 10))
     # Display the results collected by means of a heatmap
     sn.heatmap(results, annot=True, linewidths=2, cmap='GnBu_r', cbar=False, square=True, fmt='.2f',
                annot_kws={'c': 'k'}, vmax=1, vmin=-0.5)
