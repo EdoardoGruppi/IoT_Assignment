@@ -1,13 +1,11 @@
 # Import packages
 import numpy as np
 from sklearn.svm import LinearSVR
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score, make_scorer
-import matplotlib.pyplot as plt
-import seaborn as sn
+from sklearn.metrics import mean_squared_error, r2_score
 from Modules.visualization import plot_results
+from xgboost import XGBRegressor
 
 
 def find_svm(train, train_target, valid, valid_target, max_c=100):
@@ -55,16 +53,42 @@ def support_vector_machine(train, train_target, test, test_target, c, plot=True)
     """
     # Instantiate a Linear Support Vector Classifier
     # todo change support vector machine
-    model_SVR = LinearSVR(C=c, max_iter=5000)
+    model_SVR = LinearSVR(C=c, max_iter=5000, loss='squared_epsilon_insensitive', dual=False)
     # Fit the model according to the given training data
     model_SVR.fit(train, train_target)
     # Predict target variable for samples in the test dataset
     test_predictions = model_SVR.predict(test)
-    # Compute and print the R2_score
+    # Compute and print the R2_score and the MSE
     r_squared = r2_score(test_target, test_predictions)
-    print(f'R-squared on test set: {r_squared:.4f}')
+    mse = mean_squared_error(test_target, test_predictions)
+    print(f'R-squared on the test set: {r_squared:.4f}\n', f'MSE on the test set: {mse:.4f}')
     if plot:
         plot_results(test_predictions, test_target)
     return model_SVR
 
 
+def xgb_regressor(train, train_target, test, test_target, plot=True):
+    """
+    Trains a XGBRegressor model to predict a target variable.
+
+    :param train: train dataset.
+    :param train_target: target column related to the training dataset.
+    :param test: test dataset.
+    :param test_target: target column related to the test dataset.
+
+    :param plot: if True the results are plotted as well.
+    :return: the features importance.
+    """
+    # Instantiate a XGBRegressor object
+    model_XGB = XGBRegressor()
+    # Fit the model according to the given training data
+    model_XGB.fit(train, train_target)
+    # Predict target variable for samples in the test dataset
+    test_predictions = model_XGB.predict(test)
+    # Compute and print the R2_score
+    r_squared = r2_score(test_target, test_predictions)
+    mse = mean_squared_error(test_target, test_predictions)
+    print(f'R-squared on the test set: {r_squared:.4f}\n', f'MSE on the test set: {mse:.4f}')
+    if plot:
+        plot_results(test_predictions, test_target)
+    return model_XGB
