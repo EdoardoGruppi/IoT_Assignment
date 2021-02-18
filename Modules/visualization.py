@@ -6,6 +6,7 @@ from scipy import stats
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import grangercausalitytests
+from Modules.config import *
 from pmdarima.arima import ADFTest
 from pandas import Series, concat
 from scipy.stats import pearsonr
@@ -351,3 +352,20 @@ def pearson_corr(input_1, input_2, **kws):
     ax = plt.gca()
     # Print the string built in the upper right corner of the picture
     ax.annotate(label, xy=(.65, .9), size=10, xycoords=ax.transAxes)
+
+
+def plot_results(test_predictions, test_target):
+    """
+    Plots the predictions made in comparison with the true values.
+
+    :param test_predictions: predictions on the test dataset.
+    :param test_target: true values.
+    """
+    sn.set()
+    plt.figure(figsize=(25, 10))
+    plt.plot(test_target.index.values, test_target.values, label='Actual data')
+    plt.plot(test_target.index.values, test_predictions, label='Predictions')
+    plt.xlabel('Date')
+    plt.ylabel(target)
+    plt.tight_layout()
+    plt.show()
