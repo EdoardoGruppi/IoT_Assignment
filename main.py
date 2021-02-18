@@ -35,13 +35,13 @@ dataframe = train.copy()
 # hue_scatter_plot_matrix(dataframe, dataframe.columns[:2], ['Month'])
 # detect_seasonality(dataframe, dataframe.columns[0], 'Hour', 'Week Day')
 
-# target_column = dataframe['Total Energy']
+# target_column = dataframe[target]
 # plot_series(target_column)
-# plot_distribution(dataframe, 'Total Energy')
-# plot_distribution(dataframe, x='Total Energy', hue='Hour')
+# plot_distribution(dataframe, target)
+# plot_distribution(dataframe, x=target, hue='Hour')
 # plot_auto_correlation(target_column, lags=60)
 # decompose_series(target_column, period=100, mode='additive')
-# granger_test(dataframe.iloc[:, :8], target_column='Total Energy', max_lag=4)
+# granger_test(dataframe.iloc[:, :8], target_column=target, max_lag=4)
 # check_stationarity(target_column)
 
 # todo hypothesis testing
@@ -51,7 +51,7 @@ dataframe = train.copy()
 # valid = valid.drop(columns_to_remove, axis=1)
 # test = test.drop(columns_to_remove, axis=1)
 train, train_target, valid, valid_target, test, test_target = transform_dataset(train=train, valid=valid, test=test,
-                                                                                target_column='Total Energy',
+                                                                                target_column=target,
                                                                                 reduction=True, n_components=0.93)
 
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
