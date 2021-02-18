@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score, make_scorer
 import matplotlib.pyplot as plt
 import seaborn as sn
+from Modules.visualization import plot_results
 
 
 def find_svm(train, train_target, valid, valid_target, max_c=100):
@@ -63,12 +64,7 @@ def support_vector_machine(train, train_target, test, test_target, c, plot=True)
     r_squared = r2_score(test_target, test_predictions)
     print(f'R-squared on test set: {r_squared:.4f}')
     if plot:
-        sn.set()
-        plt.figure(figsize=(25, 10))
-        plt.plot(test_target.index.values, test_target.values, label='Actual data')
-        plt.plot(test_target.index.values, test_predictions, label='Predictions')
-        plt.xlabel('Date')
-        plt.ylabel('Total Energy (kW)')
-        plt.tight_layout()
-        plt.show()
+        plot_results(test_predictions, test_target)
     return model_SVR
+
+
