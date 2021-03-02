@@ -122,7 +122,7 @@ def plot_lime(model, test, instance):
     # Fit the explainer object
     explainer = LimeTabularExplainer(np.array(test), feature_names=test.columns, verbose=True, mode='regression')
     # Explain the instance required
-    explanation = explainer.explain_instance(test.iloc[instance], model.predict)
+    explanation = explainer.explain_instance(test.iloc[instance, :], model.predict)
     # Plot the results. The figure represents the magnitude of the influence of each feature when it is greater or
     # smaller than a certain value. The red color means negatively, the green the opposite.
     explanation.as_pyplot_figure()
@@ -150,7 +150,8 @@ def plot_shap(model, test, instance=None, feature=None, dataset=False):
         force_plot(explainer.expected_value, shap_values[instance, :], test.iloc[instance, :], matplotlib=True)
     # If not None explain single feature
     if feature is not None:
-        dependence_plot(feature, shap_values, test)
+        fig, ax = plt.subplots(figsize=(13, 10))
+        dependence_plot(feature, shap_values, test, ax=ax)
     # If True explain the entire dataset
     if dataset:
         summary_plot(shap_values, test)

@@ -107,5 +107,5 @@ def compute_metrics(true_values, predictions, model='Model'):
     corr = corrcoef(predictions, true_values)[0, 1]
     r_squared = 1 - (sum(errors ** 2) / sum((true_values - mean(true_values)) ** 2))
     print(f'\n{model} results by manual calculation:\n',
-          f'- MAPE: {mape:.4f} \n - RMSE: {rmse:.4f} \n - CORR: {corr:.4f} \n - R2: {r_squared:.4f}\n',
-          f'- MAE: {mae:.4f} \n - MPE: {mpe:.4f} \n - MSE: {mse:.4f}')
+          f'- MAPE: {mape:.4f} \n - RMSE: {rmse:.4f} \n - CORR: {corr:.4f} \n - R2:   {r_squared:.4f}\n',
+          f'- MAE:  {mae:.4f} \n - MPE:  {mpe:.4f} \n - MSE:  {mse:.4f}')
