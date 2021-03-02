@@ -7,7 +7,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import grangercausalitytests
 from Modules.config import *
-from pmdarima.arima import ADFTest
+from pmdarima.arima import ADFTest, ndiffs
 from pandas import Series, concat
 from scipy.stats import pearsonr
 
@@ -316,10 +316,10 @@ def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
     plt.tight_layout()
     plt.show()
     # Print the results as well
-    print(results)
+    print(f'\n{results}')
 
 
-def check_stationarity(time_series):
+def check_single_stationarity(time_series):
     """
     Performs the Augmented Dickey-Fuller test wherein the null hypothesis is: data is not stationary. Adopting an alpha
     value of 0.05, the null hypothesis will be rejected only when the confidence is greater than 95%. This function also
@@ -359,6 +359,32 @@ def check_stationarity(time_series):
     plt.show()
 
 
+def check_stationarity(dataframe):
+    """
+    Performs the Augmented Dickey-Fuller test on all the series constituting the dataframe given.
+
+    :param dataframe: dataframe to analyse with the ADF test.
+    """
+    # Make sure that the original time series is not modified
+    data = dataframe.copy()
+    print('\nResults of Dickey-Fuller Test:')
+    print('{:<15}{:<15}{:<10}{:<10}'.format('Column', 'Stationary', 'P-value', 'Order'))
+    # Significance level to reject the null hypothesis is set to 0.05
+    adf_test = ADFTest(alpha=0.05)
+    # Cycle across each column of the dataframe
+    columns = dataframe.columns
+    for column in columns:
+        # If the series is already stationary the differencing order is equal to 0
+        order = 0
+        # Compute the ADF test. It returns the p-value and if the differencing is needed
+        results, should = adf_test.should_diff(data[column])
+        # If the series must be differenced
+        if should:
+            # The differencing order needed to transform the series in stationary is computed by ndiffs()
+            order = ndiffs(data[column], alpha=0.05)
+        print(f'{column:<15}{not should:<15}{results:<10.5f}{order:<10}')
+
+
 def pearson_corr(input_1, input_2, **kws):
     """
     Function to print the correlation between two variables on the scatter plot matrix.
@@ -384,11 +410,20 @@ def plot_results(test_predictions, test_target):
     :param test_predictions: predictions on the test dataset.
     :param test_target: true values.
     """
-    sn.set()
-    plt.figure(figsize=(25, 10))
-    plt.plot(test_target.index.values, test_target.values, label='Actual data')
-    plt.plot(test_target.index.values, test_predictions, label='Predictions')
+    # Plot comparison between forecasting results and predictions
+    sn.set(font_scale=1.5)
+    f, ax = plt.subplots(figsize=(30, 10))
+    ax.plot(test_target.index, test_target, color='b', lw=1.5, label='Ground Truth')
+    ax.plot(test_target.index, test_predictions, color='coral', lw=1.3, label='Predictions')
     plt.xlabel('Date')
     plt.ylabel(target)
+    plt.legend()
     plt.tight_layout()
     plt.show()
+    # Joint plot between the true and predicted values
+    sn.set()
+    g = sn.jointplot(x=test_predictions, y=test_target.values, kind="reg", color="b")
+    g.set_axis_labels('Predictions', 'Observations')
+    plt.tight_layout()
+    plt.show()
+
