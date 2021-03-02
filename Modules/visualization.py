@@ -261,6 +261,29 @@ def decompose_series(series, period=None, mode='multiplicative'):
     plt.show()
 
 
+def pie_chart(dataframe, columns, title='Pie Chart'):
+    """
+    Plots a pie chart using the columns chosen from the dataframe passed.
+
+    :param dataframe: dataframe from which the information is retrieved.
+    :param columns: list of columns to visualize in the pie chart.
+    :param title: title displayed in the chart. default_value='Pie Chart'
+    :return:
+    """
+    sn.set()
+    # Get the sum of all the values of each column
+    pie_values = [dataframe[col].sum() for col in columns]
+    # This variable specifies the fraction of the radius with which to offset each wedge
+    explode = np.zeros(shape=len(columns))
+    # In this case only the first element is detached from the main body of the pie
+    explode[0] = 0.1
+    # Plot the pie chart
+    plt.pie(pie_values, labels=columns, explode=explode, shadow=True, autopct='%1.2f%%', startangle=90)
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()
+
+
 def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
     """
     Performs the granger test on the time series passed. Null hypothesis: the second time series, x2, does NOT Granger
