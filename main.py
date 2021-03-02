@@ -22,12 +22,12 @@ dataframe = read_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
 dataframe = process_dataframe(dataframe)
 # Resample the dataframe computing the mean of the interval selected. This helps a lot in the processing of the data.
 dataframe = dataframe.resample(resampling).mean()
-# Print meaningful information about the dataset such as the feature types or their statistics
-get_info(dataframe)
+# # Print meaningful information about the dataset such as the feature types or their statistics
+# get_info(dataframe)
 # Enlarge the dataframe creating from the time index time-based columns ('Month', 'Year', 'Week Day' and so on)
 dataframe = get_time_details(dataframe)
 # Divide the dataset between the train, valid and test sets. Valid is 0 if cross validation is used to train models
-train, valid, test = dataset_division(dataframe, valid_size=0, test_size=0.05)
+train, valid, test = dataset_division(dataframe, valid_size=0, test_size=0.02)
 # Copy the train dataframe on which to work for data visualization
 dataframe = train.copy()
 
@@ -65,31 +65,31 @@ dataframe = train.copy()
 # decompose_series(target_column, period=100, mode='additive')
 #
 # # Use the granger test to find some sort of meaningful relationships between the variables
-# granger_test(dataframe, target_column=target, max_lag=4)
+# granger_test(dataframe, target_column=target, max_lag=8, test='ssr_chi2test')
 # # Check if the series is stationary
-# check_stationarity(target_column)
+# check_stationarity(dataframe)
+# check_single_stationarity(target_column)
 #
-# # Remove the columns that are not useful
-# columns_to_remove = ['Day Of Year', 'Week Of Year', 'Dew Point']
-# train = train.drop(columns_to_remove, axis=1)
-# valid = valid.drop(columns_to_remove, axis=1)
-# test = test.drop(columns_to_remove, axis=1)
-# # Since the optimal parameters are found using Cross validation the validation set is extracted dynamically from the
-# # training set. In this case the data are prepared using the transform_dataset_cv function.
-# train, train_target, test, test_target = transform_dataset_cv(train=train, test=test, target_column=target,
-#                                                               reduction=False, n_components=0.93)
+# Remove the columns that are not useful
+columns_to_remove = ['Day Of Year', 'Week Of Year']
+train = train.drop(columns_to_remove, axis=1)
+valid = valid.drop(columns_to_remove, axis=1)
+test = test.drop(columns_to_remove, axis=1)
+# Since the optimal parameters are found using Cross validation the validation set is extracted dynamically from the
+# training set. In this case the data are prepared using the transform_dataset_cv function.
+train, train_target, test, test_target = transform_dataset_cv(train=train, test=test, target_column=target)
 
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 # Find the best value for the c parameter of a SVM
-# model_SVR = support_vector_machine(train=train, train_target=train_target, test=test, test_target=test_target, cv=5)
-# features_importance(model_SVR.coef_, train.columns)
-# plot_partial_dependencies(model_SVR, test, column='0')
-# plot_two_ways_pdp(model_SVR, test, [('0', '1')])
-# plot_ice(model_SVR, test, column='0')
-# surrogate_tree(model_SVR, test, max_depth=4)
-# plot_lime(model_SVR, test, instance=25)
+cv = 5
+# model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv)
+# model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv)
+# model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv)
 
-# model_XGB = xgb_regressor(train, train_target, test, test_target, cv=10)
-# plot_shap(model_XGB, test, instance=25, feature='0', dataset=True)
-# model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=10)
-# plot_shap(model_XGB_RF, test, instance=25, feature='0', dataset=True)
+# features_importance(model_XGB_RF.feature_importances_, train.columns)
+# plot_partial_dependencies(model_XGB_RF, test, column=['Dew Point'])
+# plot_two_ways_pdp(model_XGB_RF, test, [('Dew Point', 'Temperature')])
+# surrogate_tree(model_XGB_RF, test, max_depth=4)
+# plot_ice(model_XGB_RF, test, column='Dew Point')
+# plot_shap(model_XGB_RF, test, instance=25, feature='Dew Point', dataset=True)
+# todo plot_lime(model_XGB_RF, test, instance=25)

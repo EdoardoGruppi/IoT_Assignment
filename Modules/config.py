@@ -5,4 +5,4 @@ base_dir = './Datasets'
 # Name of the column to predict
 target = 'Total Power'
 # Resampling interval
-resampling = '10min'
+resampling = '5min'
