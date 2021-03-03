@@ -53,7 +53,7 @@ def xgb_regressor(train, train_target, test, test_target, plot=True, cv=5):
     :return: the features importance.
     """
     # List of parameters to evaluate
-    params = {'n_estimators': [5, 8, 10], 'max_depth': [10, 15, 20], 'learning_rate': [0.01, 0.1, 1]}
+    params = {'n_estimators': [20, 100], 'max_depth': [3, 10], 'learning_rate': [0.1, 1]}
     # Instantiate a XGBRegressor object
     model_XGB = XGBRegressor()
     grids = GridSearchCV(model_XGB, params, cv=cv, verbose=1, n_jobs=-1)
@@ -85,10 +85,10 @@ def xgb_random_forest_regressor(train, train_target, test, test_target, plot=Tru
     :return: the features importance.
     """
     # List of parameters to evaluate
-    params = {'n_estimators': [5, 10, 15], 'max_depth': [10, 15, 20], 'learning_rate': [0.5, 1]}
+    params = {'n_estimators': [20, 100], 'max_depth': [3, 10], 'learning_rate': [0.1, 1]}
     # Instantiate a XGBRFRegressor object
     model_XGB_RF = XGBRFRegressor()
-    grids = GridSearchCV(model_XGB_RF, params, cv=cv, verbose=1, n_jobs=-1, refit=True)
+    grids = GridSearchCV(model_XGB_RF, params, cv=cv, verbose=1, n_jobs=-1)
     # Fit the model according to the given training data
     grids.fit(train, train_target)
     print(f'Best estimator: {grids.best_estimator_}')
@@ -117,11 +117,11 @@ def light_gbm_regressor(train, train_target, test, test_target, plot=True, cv=5)
     :return: the features importance.
     """
     # List of parameters to evaluate
-    params = {'n_estimators': [5, 8, 10], 'max_depth': [10, 15, 20], 'learning_rate': [0.01, 0.1, 1],
-              'min_child_samples': [2, 3, 5]}
+    params = {'n_estimators': [10, 100, 150], 'max_depth': [10, 15, 20], 'learning_rate': [0.1, 0.5],
+              'min_child_samples': [2, 5, 10]}
     # Instantiate a LGBMRegressor object
-    model_LGBM = LGBMRegressor(num_leaves=200)
-    grids = GridSearchCV(model_LGBM, params, cv=cv, verbose=1, n_jobs=-1, refit=True)
+    model_LGBM = LGBMRegressor(num_leaves=200, class_weight='balanced')
+    grids = GridSearchCV(model_LGBM, params, cv=cv, verbose=1, n_jobs=-1)
     # Fit the model according to the given training data
     grids.fit(train, train_target)
     print(f'Best estimator: {grids.best_estimator_}')
