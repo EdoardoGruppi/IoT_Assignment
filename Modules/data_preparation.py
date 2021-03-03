@@ -85,7 +85,7 @@ def transform_dataset(train, valid, test, target_column, algorithm='pca', n_comp
     return train, train_target, valid, valid_target, test, test_target
 
 
-def transform_dataset_cv(train, test, target_column):
+def transform_dataset_cv(train, test, target_column, rescaling=False):
     """
     Transforms the dataset computing several operations. Firstly, it excludes by any computation the time series to
     predict. Secondly, it brings all the features to the same scale, i.e. the scale of the series to predict. The
@@ -94,6 +94,7 @@ def transform_dataset_cv(train, test, target_column):
     :param train: train dataset.
     :param test: test dataset.
     :param target_column: column of the dataframe to predict.
+    :param rescaling: boolean. If True the features are rescaled to the target variable scale. default_value=False
     :return: train, and test set normalized and if required also reduced.
     """
     # Exclude the main column from the computations
@@ -102,11 +103,12 @@ def transform_dataset_cv(train, test, target_column):
     # Target column
     train_target = train[target_column]
     test_target = test[target_column]
-    # Name of all the columns except the target column
-    train_columns = train_data.columns
-    # Rescale all the other features to develop on the same range of the target column and...
-    # Re-create the dataframes from the array returned by the various algorithms involved
-    scaler = MinMaxScaler(feature_range=(train[target_column].min(), train[target_column].max()))
-    train = DataFrame(scaler.fit_transform(train_data), index=train.index, columns=train_columns)
-    test = DataFrame(scaler.fit_transform(test_data), index=test.index, columns=train_columns)
-    return train, train_target, test, test_target
+    if rescaling:
+        # Name of all the columns except the target column
+        train_columns = train_data.columns
+        # Rescale all the other features to develop on the same range of the target column and...
+        # Re-create the dataframes from the array returned by the various algorithms involved
+        scaler = MinMaxScaler(feature_range=(train_target.min(), train_target.max()))
+        train_data = DataFrame(scaler.fit_transform(train_data), index=train_data.index, columns=train_columns)
+        test_data = DataFrame(scaler.fit_transform(test_data), index=test_data.index, columns=train_columns)
+    return train_data, train_target, test_data, test_target

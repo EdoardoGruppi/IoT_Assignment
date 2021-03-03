@@ -27,7 +27,7 @@ dataframe = dataframe.resample(resampling).mean()
 # Enlarge the dataframe creating from the time index time-based columns ('Month', 'Year', 'Week Day' and so on)
 dataframe = get_time_details(dataframe)
 # Divide the dataset between the train, valid and test sets. Valid is 0 if cross validation is used to train models
-train, valid, test = dataset_division(dataframe, valid_size=0, test_size=0.02)
+train, valid, test = dataset_division(dataframe, valid_size=0, test_size=0.03)
 # Copy the train dataframe on which to work for data visualization
 dataframe = train.copy()
 
@@ -82,14 +82,14 @@ train, train_target, test, test_target = transform_dataset_cv(train=train, test=
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 # Find the best value for the c parameter of a SVM
 cv = 5
-# model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv)
-# model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv)
-# model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv)
+# model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv, plot=False)
+# model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv, plot=False)
+model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv, plot=False)
 
-# features_importance(model_XGB_RF.feature_importances_, train.columns)
-# plot_partial_dependencies(model_XGB_RF, test, column=['Dew Point'])
-# plot_two_ways_pdp(model_XGB_RF, test, [('Dew Point', 'Temperature')])
-# surrogate_tree(model_XGB_RF, test, max_depth=4)
-# plot_ice(model_XGB_RF, test, column='Dew Point')
-# plot_shap(model_XGB_RF, test, instance=25, feature='Dew Point', dataset=True)
-# todo plot_lime(model_XGB_RF, test, instance=25)
+# features_importance(model_LGBM.feature_importances_, train.columns)
+# plot_partial_dependencies(model_LGBM, test, column=['Dew Point'])
+# plot_two_ways_pdp(model_LGBM, test, [('Dew Point', 'Temperature')])
+# surrogate_tree(model_LGBM, test, max_depth=4)
+# plot_ice(model_LGBM, test, column='Dew Point')
+# plot_shap(model_LGBM, test, instance=25, feature='Dew Point', dataset=True)
+# plot_lime(model_LGBM, test, instance=25)
