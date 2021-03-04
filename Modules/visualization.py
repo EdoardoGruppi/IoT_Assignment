@@ -426,4 +426,3 @@ def plot_results(test_predictions, test_target):
     g.set_axis_labels('Predictions', 'Observations')
     plt.tight_layout()
     plt.show()
-

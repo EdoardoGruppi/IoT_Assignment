@@ -5,6 +5,7 @@ from Modules.visualization import plot_results
 from xgboost import XGBRegressor, XGBRFRegressor
 from Modules.utilities import compute_metrics
 from lightgbm import LGBMRegressor
+from Modules.utilities import residuals_properties
 
 
 def support_vector_machine(train, train_target, test, test_target, plot=True, cv=5):
@@ -135,3 +136,21 @@ def light_gbm_regressor(train, train_target, test, test_target, plot=True, cv=5)
     if plot:
         plot_results(test_predictions, test_target)
     return model_LGBM
+
+
+def model_residuals(model, data, data_target, model_name='Model'):
+    """
+    Computes and plots the residuals of the model obtained on the data passed.
+
+    :param model: model object used to make predictions.
+    :param data: data used to predict a target variable.
+    :param data_target: true values of the target variable.
+    :param model_name: string to identify the model. default_value='Model'
+    :return:
+    """
+    # Make predictions
+    data_predictions = model.predict(data)
+    # Compute the residuals
+    residuals = data_target - data_predictions
+    # Display the residuals properties
+    residuals_properties(residuals, model=model_name)

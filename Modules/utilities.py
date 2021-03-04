@@ -1,6 +1,13 @@
 # Import packages
 from pandas import to_datetime, date_range, factorize
 from numpy import mean, abs, sqrt, corrcoef
+from statsmodels.stats.stattools import durbin_watson
+from scipy import stats
+import numpy as np
+import seaborn as sn
+import matplotlib.pyplot as plt
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.api import qqplot
 
 
 def get_info(dataframe):
@@ -109,3 +116,56 @@ def compute_metrics(true_values, predictions, model='Model'):
     print(f'\n{model} results by manual calculation:\n',
           f'- MAPE: {mape:.4f} \n - RMSE: {rmse:.4f} \n - CORR: {corr:.4f} \n - R2:   {r_squared:.4f}\n',
           f'- MAE:  {mae:.4f} \n - MPE:  {mpe:.4f} \n - MSE:  {mse:.4f}')
+
+
+def residuals_properties(residuals, model='Model'):
+    """
+    Computes statistical values and displays plots to evaluate how the models fitted the training dataset. The residuals
+    in a time series model are what is left over after fitting a model.
+
+    :param model: string to identify the model. default_value='Model'
+    :param residuals: residuals of the model.
+    :return:
+    """
+    # Compute mean, median, skewness, kurtosis and durbin statistic
+    mean_value = residuals.mean()
+    median = np.median(residuals)
+    # skewness = 0 : same weight in both the tails such as a normal distribution.
+    skew = stats.skew(residuals)
+    # Kurtosis is the degree of the peak of a distribution.
+    # 3 it is normal, >3 higher peak, <3 lower peak
+    kurtosis = stats.kurtosis(residuals)
+    # Values between 0 and 2 indicate positive and values between 2 and 4 indicate negative auto-correlation.
+    durbin = durbin_watson(residuals)
+    # Anderson-Darling test null hypothesis: the sample follows the normal distribution
+    anderson = stats.normaltest(residuals)[1]
+    print(f'{model} residuals information:\n - Mean: {mean_value:.4f} \n - Median: {median:.4f} \n - Skewness: '
+          f'{skew:.4f} \n - Kurtosis: {kurtosis:.4f}\n - Durbin: {durbin:.4f}\n - Anderson p-value: {anderson:.4f}')
+    # Create plots
+    sn.set()
+    fig, axes = plt.subplots(1, 5, figsize=(25, 5.3))
+    # Compute standardized residuals
+    residuals = (residuals - np.nanmean(residuals)) / np.nanstd(residuals)
+    # First picture: q-q plot
+    # Keep only not NaN residuals.
+    residuals_non_missing = residuals[~(np.isnan(residuals))]
+    qqplot(residuals_non_missing, line='s', ax=axes[0])
+    axes[0].set_title('Normal Q-Q')
+    # Second picture: simple plot of standardized residuals
+    x = np.arange(0, len(residuals), 1)
+    sn.lineplot(x=x, y=residuals, ax=axes[1])
+    axes[1].set_title('Standardized residual')
+    # Third picture: comparison between residual and gaussian distribution
+    kde = stats.gaussian_kde(residuals_non_missing)
+    x_lim = (-1.96 * 2, 1.96 * 2)
+    x = np.linspace(x_lim[0], x_lim[1])
+    axes[2].plot(x, stats.norm.pdf(x), label='Normal (0,1)', lw=2)
+    axes[2].plot(x, kde(x), label='Residuals', lw=2)
+    axes[2].set_xlim(x_lim)
+    axes[2].legend()
+    axes[2].set_title('Estimated density')
+    # Last pictures: residuals auto-correlation plots
+    plot_acf(residuals, ax=axes[3], lags=30)
+    plot_pacf(residuals, ax=axes[4], lags=30)
+    fig.tight_layout()
+    plt.show()

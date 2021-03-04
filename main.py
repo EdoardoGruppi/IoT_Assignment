@@ -82,8 +82,8 @@ train, train_target, test, test_target = transform_dataset_cv(train=train, test=
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 # Find the best value for the c parameter of a SVM
 cv = 5
-# model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv, plot=False)
-# model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv, plot=False)
+model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv, plot=False)
+model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv, plot=False)
 model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv, plot=False)
 
 # features_importance(model_LGBM.feature_importances_, train.columns)
@@ -93,3 +93,5 @@ model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv, 
 # plot_ice(model_LGBM, test, column='Dew Point')
 # plot_shap(model_LGBM, test, instance=25, feature='Dew Point', dataset=True)
 # plot_lime(model_LGBM, test, instance=25)
+
+# model_residuals(model_LGBM, train, train_target)
