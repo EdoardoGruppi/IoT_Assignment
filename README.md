@@ -2,7 +2,7 @@
 
 [Project](https://github.com/EdoardoGruppi/IoT_Assignment)
 
-DESCRIPTION
+This project aims to analyse and model the information retrieved by a real-world smart home energy IoT system in order to understand which are the relationships in the dataset chosen between the dependent variables and the selected target feature. To help the understanding of the inner working of the models adopted, several machine learning interpretability techniques are exploited. The dataset can be downloaded from this [link](https://www.kaggle.com/taranvee/smart-home-dataset-with-weather-information).
 
 ## How to start
 
