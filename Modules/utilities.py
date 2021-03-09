@@ -22,6 +22,8 @@ def get_info(dataframe):
     print(dataframe.head())
     print('\nDataframe stats ' + '=' * 70)
     print(dataframe.describe())
+    print('\nDataframe cleaning ' + '=' * 70)
+    print(f'Total number of missing values: {dataframe.isnull().sum().sum()}')
 
 
 def transform_categorical(dataframe, column):

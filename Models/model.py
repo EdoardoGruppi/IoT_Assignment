@@ -1,5 +1,5 @@
 # Import packages
-from sklearn.svm import LinearSVR
+from sklearn.svm import LinearSVR, SVR
 from sklearn.model_selection import GridSearchCV
 from Modules.visualization import plot_results
 from xgboost import XGBRegressor, XGBRFRegressor
@@ -22,9 +22,9 @@ def support_vector_machine(train, train_target, test, test_target, plot=True, cv
     :return: the features importance.
     """
     # List of parameters to evaluate
-    params = {'C': [1, 5, 10, 50, 100]}
+    params = {'C': [1, 50, 100], 'kernel': ['poly', 'rbf']}
     # Instance of the model
-    model_SVR = LinearSVR(max_iter=10000, loss='squared_epsilon_insensitive', dual=False)
+    model_SVR = SVR()
     grids = GridSearchCV(model_SVR, params, cv=cv, verbose=1, n_jobs=-1)
     # Search the best values
     grids.fit(train, train_target)

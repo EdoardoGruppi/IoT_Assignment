@@ -12,18 +12,19 @@ from pandas import Series, concat
 from scipy.stats import pearsonr
 
 
-def plot_correlation_matrix(dataframe):
+def plot_correlation_matrix(dataframe, figsize=(10, 10)):
     """
     Computes and plots the correlation matrix using the heatmap function of seaborn.
 
     :param dataframe: dataframe to analyse.
+    :param figsize: size of the figure plotted. default_value=(10, 10)
     :return:
     """
     # Compute the correlation matrix
     corr = dataframe.corr()
     sn.set()
     # Set up the matplotlib figure
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=figsize)
     # Generate a custom diverging colormap
     cmap = sn.diverging_palette(230, 20, as_cmap=True)
     # Draw the heatmap with the mask and correct aspect ratio
@@ -169,24 +170,27 @@ def hue_scatter_plot_matrix(dataframe, columns, hue=None):
     plt.show()
 
 
-def box_plot(dataframe, columns):
+def box_plot(dataframe, columns, figsize=(35, 8)):
     """
     Plots the univariate box-plots of each attribute of the dataset passed.
 
     :param dataframe: dataframe to analyse.
     :param columns: columns to consider in both the plots.
+    :param figsize: size of the figure plotted. default_value=(35, 8)
     :return:
     """
     sn.set()
-    figure = plt.figure(figsize=(35, 8))
+    figure = plt.figure(figsize=figsize)
     for index, col in enumerate(columns):
         figure.add_subplot(1, len(columns), index + 1)
-        sn.boxplot(y=col, data=dataframe, linewidth=3.5)
+        g = sn.boxplot(y=col, data=dataframe, linewidth=3.5)
+        g.set(xlabel=None, ylabel=None)
+        g.set_title(col, fontdict={'fontsize': 20})
         figure.tight_layout()
     plt.show()
 
 
-def detect_seasonality(dataframe, y_axis, x_axis, hue):
+def detect_seasonality(dataframe, y_axis, x_axis, hue, figsize=(20, 10)):
     """
     Displays a seasonal plot to detect recurrent patterns in data throughout years, months, days, etc.
 
@@ -195,11 +199,15 @@ def detect_seasonality(dataframe, y_axis, x_axis, hue):
     :param x_axis: variable that specify positions on the x axes.
     :param hue: grouping variable that will produce lines with different colors. To detect some sort of seasonality
         it should be one of the variables related to the time.
+    :param figsize: size of the figure plotted. default_value=(20, 10)
     :return:
     """
-    sn.set()
-    plt.subplots(1, 1, sharey='all', figsize=(20, 10))
-    sn.lineplot(data=dataframe, x=x_axis, y=y_axis, hue=hue, legend='full')
+    sn.set(font_scale=1)
+    plt.subplots(1, 1, sharey='all', figsize=figsize)
+    g = sn.lineplot(data=dataframe, x=x_axis, y=y_axis, hue=hue, legend='full')
+    g.set(xlabel=None, ylabel=None)
+    g.set_xlabel('Hour', fontdict={'fontsize': 20})
+    g.set_ylabel('Total Power', fontdict={'fontsize': 20})
     plt.tight_layout()
     plt.show()
 
@@ -284,7 +292,7 @@ def pie_chart(dataframe, columns, title='Pie Chart'):
     plt.show()
 
 
-def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
+def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest', figsize=(20, 10)):
     """
     Performs the granger test on the time series passed. Null hypothesis: the second time series, x2, does NOT Granger
     cause the time series of interest, x1. Grange causality means that past values of x2 have a statistically
@@ -294,6 +302,7 @@ def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
     :param target_column: time series x1.
     :param max_lag: maximum number of lags to consider. default_value=5
     :param test: which test to keep between the four computed by the stat function. default_value='ssr_ftest'
+    :param figsize: size of the figure plotted. default_value=(20, 10)
     :return:
     """
     print('\nExecuting Granger Test...')
@@ -308,8 +317,8 @@ def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest'):
         results.append(Series([item[0][test][1] for item in dictionary.values()], name=col_name))
     # Create a dataframe with the results achieved
     results = concat(results, axis=1)
-    sn.set()
-    plt.figure(figsize=(20, 10))
+    sn.set(font_scale=1)
+    plt.figure(figsize=figsize)
     # Display the results collected by means of a heatmap
     sn.heatmap(results, annot=True, linewidths=2, cmap='GnBu_r', cbar=False, square=True, fmt='.2f',
                annot_kws={'c': 'k'}, vmax=1, vmin=-0.5)
@@ -421,7 +430,7 @@ def plot_results(test_predictions, test_target):
     plt.tight_layout()
     plt.show()
     # Joint plot between the true and predicted values
-    sn.set()
+    sn.set(font_scale=1)
     g = sn.jointplot(x=test_predictions, y=test_target.values, kind="reg", color="b")
     g.set_axis_labels('Predictions', 'Observations')
     plt.tight_layout()

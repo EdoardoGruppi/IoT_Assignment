@@ -46,12 +46,12 @@ dataframe = train.copy()
 # # Display a single plot that comprises n subplots, each displaying a specific series distribution
 # plot_distributions(dataframe.iloc[:, :13], columns=5)
 # # Show a comparison of the box plots of all the variables
-# box_plot(dataframe, dataframe.columns[:13])
-# # The following function plots one or more scatter plot matrices colouring the data points according to the specific
+# box_plot(dataframe, dataframe.columns[:13], figsize=(30, 6))
+# The following function plots one or more scatter plot matrices colouring the data points according to the specific
 # # time they are measured.
 # hue_scatter_plot_matrix(dataframe, dataframe.columns[:4], ['Month', 'Hour'])
 # # Display a seasonal plot to detect recurrent patterns
-# detect_seasonality(dataframe, target, 'Hour', 'Week Day')
+# detect_seasonality(dataframe, target, 'Hour', 'Week Day', figsize=(12, 7))
 #
 # # Consider only target variable of the project and plot it.
 # target_column = dataframe[target]
@@ -65,11 +65,11 @@ dataframe = train.copy()
 # decompose_series(target_column, period=100, mode='additive')
 #
 # # Use the granger test to find some sort of meaningful relationships between the variables
-# granger_test(dataframe, target_column=target, max_lag=8, test='ssr_chi2test')
+# granger_test(dataframe.iloc[:, :17], target_column=target, max_lag=8, test='ssr_chi2test')
 # # Check if the series is stationary
 # check_stationarity(dataframe)
 # check_single_stationarity(target_column)
-#
+# #
 # Remove the columns that are not useful
 columns_to_remove = ['Day Of Year', 'Week Of Year']
 train = train.drop(columns_to_remove, axis=1)
@@ -82,10 +82,10 @@ train, train_target, test, test_target = transform_dataset_cv(train=train, test=
 # DATA INFERENCE AND ML INTERPRETABILITY ===============================================================================
 # Find the best value for the c parameter of a SVM
 cv = 5
-model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv, plot=False)
-model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv, plot=False)
-model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv, plot=False)
-
+# model_XGB = xgb_regressor(train, train_target, test, test_target, cv=cv, plot=False)
+# model_XGB_RF = xgb_random_forest_regressor(train, train_target, test, test_target, cv=cv, plot=False)
+model_LGBM = light_gbm_regressor(train, train_target, test, test_target, cv=cv, plot=True)
+#
 # features_importance(model_LGBM.feature_importances_, train.columns)
 # plot_partial_dependencies(model_LGBM, test, column=['Dew Point'])
 # plot_two_ways_pdp(model_LGBM, test, [('Dew Point', 'Temperature')])
