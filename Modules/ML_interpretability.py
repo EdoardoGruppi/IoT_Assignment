@@ -4,9 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 from sklearn.inspection import plot_partial_dependence
 from sklearn.tree import DecisionTreeRegressor, plot_tree
-from pdpbox import pdp
 from lime.lime_tabular import LimeTabularExplainer
-from shap import TreeExplainer, force_plot, dependence_plot, summary_plot
+from shap import TreeExplainer, force_plot, dependence_plot, summary_plot, initjs
 
 
 def features_importance(feature_importance, names):
@@ -22,7 +21,7 @@ def features_importance(feature_importance, names):
     feature_importance, names = zip(*sorted(zip(feature_importance, names)))
     # Display the features importance
     sn.set()
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(9, 6))
     plt.title('Features Importance')
     # Bar chart plot
     plt.barh(range(len(names)), feature_importance, align='center')
@@ -42,7 +41,6 @@ def plot_partial_dependencies(model, test, column):
     :return:
     """
     sn.set()
-    plt.figure()
     plot_partial_dependence(model, test, column, n_jobs=-1)
     # Format the figure
     plt.tight_layout()
@@ -66,19 +64,21 @@ def plot_two_ways_pdp(model, test, columns):
     plt.show()
 
 
-def plot_ice(model, test, column):
+def plot_ice(model, test, features):
     """
     ICE plots is used to display how the prediction target changes when a feature varies at each instances. CE looks
     locally so that the model prediction is measured for each observation when the feature value changes. PDP can be
-    regarded as an average of the lines of ICE plot. The ICE curves  plotted with the functions provided by the
-    package pdpbox are centered to make it easier to spot the differences between curves at different instances.
+    regarded as an average of the lines of ICE plot.
 
     :param model: the model considered. The ice plot is calculated only after the model has been fit.
     :param test: test dataset.
-    :param column: variables studied.
+    :param features: list of variables studied.
     """
-    pdp_feature = pdp.pdp_isolate(model, test, model_features=test.columns, feature=column)
-    pdp.pdp_plot(pdp_feature, column, plot_lines=True, frac_to_plot=100)
+    # Albeit the number of observations considered to create the ICE plots are equal to subsample, the full dataset is
+    # still used to calculate averaged partial dependence when kind='both'.
+    plot_partial_dependence(model, test, features, kind="both", subsample=50, n_jobs=-1, grid_resolution=2,
+                            random_state=0)
+    plt.ylim(0, 2)
     plt.tight_layout()
     plt.show()
 
@@ -103,7 +103,7 @@ def surrogate_tree(model, test, max_depth=5, random_state=10):
     # the decision tree under a gray background. Otherwise, the arrows are not displayed. The background of the image
     # once saved can be modified using an external lightweight software such as paint
     plt.style.use('grayscale')
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=(35, 6))
     plot_tree(surrogate_model, feature_names=test.columns, filled=True, rounded=True, fontsize=8)
     plt.show()
     # Set the previous style
@@ -125,6 +125,7 @@ def plot_shap(model, test, instance=None, feature=None, dataset=False):
     explainer = TreeExplainer(model)
     # Compute SHAP values
     shap_values = explainer.shap_values(test)
+    initjs()
     # If not None explain single prediction
     if instance is not None:
         force_plot(explainer.expected_value, shap_values[instance, :], test.iloc[instance, :], matplotlib=True)
@@ -134,7 +135,8 @@ def plot_shap(model, test, instance=None, feature=None, dataset=False):
         dependence_plot(feature, shap_values, test, ax=ax)
     # If True explain the entire dataset
     if dataset:
-        summary_plot(shap_values, test)
+        summary_plot(shap_values, test, plot_size=(8, 8))
+        summary_plot(shap_values, test, plot_type="bar", plot_size=(8, 8))
 
 
 def plot_lime(model, test, instance):
