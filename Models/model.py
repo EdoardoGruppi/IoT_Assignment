@@ -6,6 +6,8 @@ from xgboost import XGBRegressor, XGBRFRegressor
 from Modules.utilities import compute_metrics
 from lightgbm import LGBMRegressor
 from Modules.utilities import residuals_properties
+from sklearn.ensemble import RandomForestRegressor
+import warnings
 
 
 def support_vector_machine(train, train_target, test, test_target, plot=True, cv=5):
@@ -54,7 +56,7 @@ def xgb_regressor(train, train_target, test, test_target, plot=True, cv=5):
     :return: the features importance.
     """
     # List of parameters to evaluate
-    params = {'n_estimators': [20, 100], 'max_depth': [3, 10], 'learning_rate': [0.1, 1]}
+    params = {'n_estimators': [400, 500], 'max_depth': [2, 3, 5], 'learning_rate': [0.1]}
     # Instantiate a XGBRegressor object
     model_XGB = XGBRegressor()
     grids = GridSearchCV(model_XGB, params, cv=cv, verbose=1, n_jobs=-1)
@@ -73,9 +75,9 @@ def xgb_regressor(train, train_target, test, test_target, plot=True, cv=5):
     return model_XGB
 
 
-def xgb_random_forest_regressor(train, train_target, test, test_target, plot=True, cv=5):
+def random_forest_regressor(train, train_target, test, test_target, plot=True, cv=5):
     """
-    Trains a XGB Random Forest Regressor model to predict a target variable.
+    Trains a Random Forest Regressor model to predict a target variable.
 
     :param train: train dataset.
     :param train_target: target column related to the training dataset.
@@ -86,23 +88,23 @@ def xgb_random_forest_regressor(train, train_target, test, test_target, plot=Tru
     :return: the features importance.
     """
     # List of parameters to evaluate
-    params = {'n_estimators': [20, 100], 'max_depth': [3, 10], 'learning_rate': [0.1, 1]}
-    # Instantiate a XGBRFRegressor object
-    model_XGB_RF = XGBRFRegressor()
-    grids = GridSearchCV(model_XGB_RF, params, cv=cv, verbose=1, n_jobs=-1)
+    params = {'n_estimators': [50]}
+    # Instantiate a Random Forest object
+    model_RF = RandomForestRegressor(oob_score=True, random_state=33)
+    grids = GridSearchCV(model_RF, params, cv=cv, verbose=1, n_jobs=-1)
     # Fit the model according to the given training data
     grids.fit(train, train_target)
     print(f'Best estimator: {grids.best_estimator_}')
     # Train the best estimator
-    model_XGB_RF = grids.best_estimator_
-    model_XGB_RF.fit(train, train_target)
+    model_RF = grids.best_estimator_
+    model_RF.fit(train, train_target)
     # Predict target variable for samples in the test dataset
-    test_predictions = model_XGB_RF.predict(test)
+    test_predictions = model_RF.predict(test)
     # Compute and print metrics
-    compute_metrics(test_target, test_predictions, model='XGB_RF')
+    compute_metrics(test_target, test_predictions, model='RF')
     if plot:
         plot_results(test_predictions, test_target)
-    return model_XGB_RF
+    return model_RF
 
 
 def light_gbm_regressor(train, train_target, test, test_target, plot=True, cv=5):
@@ -117,12 +119,13 @@ def light_gbm_regressor(train, train_target, test, test_target, plot=True, cv=5)
     :param cv: determines the number of folds used in the cross-validation splitting strategy. default_Value=5
     :return: the features importance.
     """
+    warnings.filterwarnings("ignore")
     # List of parameters to evaluate
-    params = {'n_estimators': [10, 100, 150], 'max_depth': [10, 15, 20], 'learning_rate': [0.1, 0.5],
-              'min_child_samples': [2, 5, 10]}
+    params = {'n_estimators': [400, 500], 'max_depth': [2, 5], 'learning_rate': [0.1],
+              'min_child_samples': [10, 20], 'num_leaves': [50, 200]}
     # Instantiate a LGBMRegressor object
-    model_LGBM = LGBMRegressor(num_leaves=200, class_weight='balanced')
-    grids = GridSearchCV(model_LGBM, params, cv=cv, verbose=1, n_jobs=-1)
+    model_LGBM = LGBMRegressor(class_weight='balanced')
+    grids = GridSearchCV(model_LGBM, params, cv=cv, verbose=1, n_jobs=-1, scoring='r2')
     # Fit the model according to the given training data
     grids.fit(train, train_target)
     print(f'Best estimator: {grids.best_estimator_}')
