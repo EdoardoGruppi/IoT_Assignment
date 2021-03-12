@@ -190,7 +190,7 @@ def box_plot(dataframe, columns, figsize=(35, 8)):
     plt.show()
 
 
-def detect_seasonality(dataframe, y_axis, x_axis, hue, figsize=(20, 10)):
+def detect_seasonality(dataframe, y_axis, x_axis, hue, figsize=(20, 10), freq=None):
     """
     Displays a seasonal plot to detect recurrent patterns in data throughout years, months, days, etc.
 
@@ -206,8 +206,8 @@ def detect_seasonality(dataframe, y_axis, x_axis, hue, figsize=(20, 10)):
     plt.subplots(1, 1, sharey='all', figsize=figsize)
     g = sn.lineplot(data=dataframe, x=x_axis, y=y_axis, hue=hue, legend='full')
     g.set(xlabel=None, ylabel=None)
-    g.set_xlabel('Hour', fontdict={'fontsize': 20})
-    g.set_ylabel('Total Power', fontdict={'fontsize': 20})
+    g.set_xlabel(x_axis, fontdict={'fontsize': 20})
+    g.set_ylabel(y_axis, fontdict={'fontsize': 20})
     plt.tight_layout()
     plt.show()
 
@@ -312,7 +312,7 @@ def granger_test(dataframe, target_column, max_lag=1, test='ssr_ftest', figsize=
     # For every column different by the target column compute the granger test.
     for col_name in columns:
         # The granger test results are returned as dictionary
-        dictionary = grangercausalitytests(dataframe[[target_column, col_name]], maxlag=max_lag)
+        dictionary = grangercausalitytests(dataframe[[target_column, col_name]], maxlag=max_lag, verbose=False)
         # For every tuple (max = number of lags) in the dictionary, save only the obtained p-value
         results.append(Series([item[0][test][1] for item in dictionary.values()], name=col_name))
     # Create a dataframe with the results achieved
@@ -421,9 +421,9 @@ def plot_results(test_predictions, test_target):
     """
     # Plot comparison between forecasting results and predictions
     sn.set(font_scale=1.5)
-    f, ax = plt.subplots(figsize=(30, 10))
+    f, ax = plt.subplots(figsize=(18, 6))
     ax.plot(test_target.index, test_target, color='b', lw=1.5, label='Ground Truth')
-    ax.plot(test_target.index, test_predictions, color='coral', lw=1.3, label='Predictions')
+    ax.plot(test_target.index, test_predictions, color='red', lw=2, label='Predictions')
     plt.xlabel('Date')
     plt.ylabel(target)
     plt.legend()

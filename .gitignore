@@ -5,5 +5,7 @@ Modules/acquisition.py
 .idea
 b.py
 Modules/smartMeshIp.py
+Datasets/HomeWeather.csv
 logs
 __pycache__
+Datasets/Home20minWeather.csv
