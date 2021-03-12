@@ -93,7 +93,28 @@ def get_time_details(dataframe):
     dataframe['Month'] = index.month
     dataframe['Day Of Year'] = index.dayofyear
     dataframe['Week Of Year'] = index.isocalendar().week
+    dataframe['Day Moment'] = dataframe['Hour'].apply(day_moment)
     return dataframe
+
+
+def day_moment(hour):
+    """
+    :returns the moment of the day related to the hour selected.
+
+    :param hour: integere in range [0,24).
+    """
+    # Morning
+    if 3 < hour < 12:
+        return 1
+    # Afternoon
+    if 11 < hour < 17:
+        return 2
+    # Evening
+    if 16 < hour < 22:
+        return 3
+    # Night
+    else:
+        return 4
 
 
 def compute_metrics(true_values, predictions, model='Model'):
