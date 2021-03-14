@@ -1,5 +1,4 @@
 # Import packages
-from pandas import to_datetime, date_range
 from Modules.utilities import *
 
 
@@ -78,17 +77,43 @@ def hard_process_dataframe(df):
 
 
 def resampling_dataframe(dataframe, resampling):
+    """
+    Resamples the dataframe passed adding information about the time as well.
+
+    :param dataframe: dataframe to process.
+    :param resampling: string to identify the smapling interval.
+    :return: the new dataframe.
+    """
+    # Resample the dataframe as required
     dataframe = dataframe.resample(resampling).mean()
+    # Return the dataframe re sampled along with time information
     return get_time_details(dataframe)
 
 
 def pie_chart(dataframe, columns):
+    """
+    Computes the pie values.
+
+    :param dataframe: dataframe on which to work.
+    :param columns: columns to consider in the computation.
+    :return: the pie values (sum of all the values within each column).
+    """
+    # Compute and return the pie values
     pie_values = [dataframe[col].sum() for col in columns]
     return pie_values
 
 
 def create_options(array):
+    """
+    Creates a list of dictionaries in the following form: [{'label': item, 'value': item}, {'label': item,
+    'value': item}, {'label': item, 'value': item} ... {'label': item, 'value': item}] from the list given.
+
+    :param array: list containing the items.
+    :return: the list of dictionaries.
+    """
+    # Create the list
     new_array = []
+    # For each item create a dictionary
     for item in array:
         new_array.append({'label': item, 'value': item})
     return new_array
