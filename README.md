@@ -14,6 +14,14 @@ python main.py
 
 The packages required for the execution of the code along with the role of each file and the software used are described in the Sections below.
 
+## Dashboard
+
+The dashboard can be visualised typing the following line on the terminal or by running the specific command within the IDE.
+
+```
+python dashboard.py
+```
+
 ## Packages required
 
 A comprehensive list of the packages needed to run the project is provided in the file [requirements.txt](https://github.com/EdoardoGruppi/IoT_Assignment/blob/main/requirements.txt). The latter can also be directly used to install the packages by typing the specific command on the terminal.
