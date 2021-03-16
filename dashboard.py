@@ -1,3 +1,4 @@
+# The script has been created starting from the guide at the following link: https://bit.ly/3qULt9c
 # The dashboard is visible by clicking on http://127.0.0.1:8085/
 # Import packages
 import dash
