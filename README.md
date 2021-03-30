@@ -8,7 +8,7 @@ This project aims to analyse and model the information retrieved by a real-world
 
 A comprehensive list of the packages needed to run the project is provided in the file [requirements.txt](https://github.com/EdoardoGruppi/IoT_Assignment/blob/main/requirements.txt). The latter can also be directly used to install the packages by typing the specific command on the terminal.
 
-# Dataset
+## Dataset
 
 For the assignment, the dataset is downloaded directly from the Db2 database by the bespoke function at the beginning of the main code. It is also submitted within the code folder.
 
