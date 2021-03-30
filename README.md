@@ -22,6 +22,12 @@ The dashboard can be visualised typing the following line on the terminal or by 
 python dashboard.py
 ```
 
+Hereafter, two gifs introduce how the dashboard appears.
+
+![ezgif com-gif-maker](https://user-images.githubusercontent.com/48513387/112954769-00f5ad80-913f-11eb-8e9a-7b171c471cd3.gif)
+
+![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/48513387/112954810-0bb04280-913f-11eb-84cc-30793f5250d6.gif)
+
 ## Packages required
 
 A comprehensive list of the packages needed to run the project is provided in the file [requirements.txt](https://github.com/EdoardoGruppi/IoT_Assignment/blob/main/requirements.txt). The latter can also be directly used to install the packages by typing the specific command on the terminal.
