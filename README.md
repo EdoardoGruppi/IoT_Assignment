@@ -2,7 +2,17 @@
 
 [Project](https://github.com/EdoardoGruppi/IoT_Assignment)
 
-This project aims to analyse and model the information retrieved by a real-world smart home energy IoT system in order to understand which are the relationships in the dataset chosen between the dependent variables and the selected target feature. To help the understanding of the inner working of the models adopted, several machine learning interpretability techniques are exploited. The dataset can be downloaded from this [link](https://www.kaggle.com/taranvee/smart-home-dataset-with-weather-information).
+This project aims to analyse and model the information retrieved by a real-world smart home energy IoT system in order to understand which are the relationships in the dataset chosen between the dependent variables and the selected target feature. To help the understanding of the inner working of the models adopted, several machine learning interpretability techniques are exploited.
+
+## Packages required
+
+A comprehensive list of the packages needed to run the project is provided in the file [requirements.txt](https://github.com/EdoardoGruppi/IoT_Assignment/blob/main/requirements.txt). The latter can also be directly used to install the packages by typing the specific command on the terminal.
+
+# Dataset
+
+For the assignment, the dataset is downloaded directly from the Db2 database by the bespoke function at the beginning of the main code. It is also submitted within the code folder.
+
+Alternatively, it can also be downloaded from this [link](https://www.kaggle.com/taranvee/smart-home-dataset-with-weather-information).
 
 ## How to start
 
@@ -27,10 +37,6 @@ Hereafter, two gifs introduce how the dashboard appears.
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/48513387/112954769-00f5ad80-913f-11eb-8e9a-7b171c471cd3.gif)
 
 ![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/48513387/112954810-0bb04280-913f-11eb-84cc-30793f5250d6.gif)
-
-## Packages required
-
-A comprehensive list of the packages needed to run the project is provided in the file [requirements.txt](https://github.com/EdoardoGruppi/IoT_Assignment/blob/main/requirements.txt). The latter can also be directly used to install the packages by typing the specific command on the terminal.
 
 ## Role of each file
 
