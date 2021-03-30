@@ -10,16 +10,17 @@ from Modules.ML_interpretability import *
 
 # DATA ACQUISITION =====================================================================================================
 # The dataset can be downloaded from the following link https://bit.ly/37pTa0f or using the download_dataset()
-# function provided that gets data from the IBM SQL Db2 dataset.
+# function provided that gets data from the IBM SQL Db2 dataset. The dataset is also included in the code folder
+# submitted on Moodle for the assignment.
 dataframe = download_dataset()
-dataframe.to_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
+dataframe.to_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',', index=False)
 
 # DATA PREPROCESSING ===================================================================================================
 # Read the csv file saved earlier
 dataframe = read_csv(os.path.join(base_dir, 'HomeC.csv'), sep=',')
 # Rename all the columns. Some features are combined and some variables are dropped
 dataframe = process_dataframe(dataframe)
-# Resample the dataframe computing the mean of the interval selected. This helps a lot in the processing of the data.
+# Resample the dataframe computing the mean of the interval selected. This is helpful during the processing of the data.
 dataframe = dataframe.resample(resampling).mean()
 # Print meaningful information about the dataset such as the feature types or their statistics
 get_info(dataframe)
@@ -30,12 +31,12 @@ train, valid, test = dataset_division(dataframe, valid_size=0, test_size=0.03)
 # Copy the train dataframe on which to work for data visualization
 dataframe = train.copy()
 
-# DATA EXPLORATION AND HYPOTHESIS TESTING ==============================================================================
+# DATA EXPLORATION =====================================================================================================
 # Plot the correlation matrix of the dataframe
 plot_correlation_matrix(dataframe)
 # Plot a pie chart representing the consumption of every room of the house
 pie_chart(dataframe, ['Kitchen', 'Living Room', 'Furnace', 'Outside', 'Home Office'], title='Rooms Consumption')
-# PLot a distribution of the total monthly power consumption
+# Plot a distribution of the total monthly power consumption
 plot_distribution(dataframe, x='Total Power', hue='Month')
 # Detect univariate outlier in the time series passed
 _ = detect_univariate_outlier(dataframe.iloc[:, :2], cap=None, nan=None)
@@ -63,7 +64,7 @@ plot_auto_correlation(target_column, lags=60)
 # Decompose series to separate the trend, seasonality and residuals
 decompose_series(target_column, period=100, mode='additive')
 
-# Use the granger test to find some sort of meaningful relationships between the variables
+# Use the granger test to find some sort of meaningful causal relationships between the variables
 granger_test(dataframe.iloc[:, :17], target_column=target, max_lag=8, test='ssr_chi2test')
 # Check if the series is stationary
 check_stationarity(dataframe)
